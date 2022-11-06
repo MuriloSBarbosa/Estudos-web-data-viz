@@ -1,27 +1,35 @@
 var database = require("../database/config");
 
-function buscarUltimasMedidas(idAquario, limite_linhas) {
+function buscarUltimasMedidas(idOrquestra) {
 
     instrucaoSql = ''
 
     if (process.env.AMBIENTE_PROCESSO == "producao") {
-        instrucaoSql = `select top ${limite_linhas}
-        dht11_temperatura as temperatura, 
-        dht11_umidade as umidade,  
-                        momento,
-                        FORMAT(momento, 'HH:mm:ss') as momento_grafico
-                    from medida
-                    where fk_aquario = ${idAquario}
-                    order by id desc`;
+        instrucaoSql = `
+        select count(m.fkInstrumento) as qtdInstrumento,
+		ins.naipe as nome
+        from musico m
+            join integrante i
+                on i.idIntegrante = m.fkMusico
+            join instrumento ins
+                on ins.idInstrumento = m.fkInstrumento
+			join orquestra o
+				on o.idOrquestra = m.fkOrquestra
+                where o.idOrquestra = ${idOrquestra}
+                group by ins.naipe;
+        `;
     } else if (process.env.AMBIENTE_PROCESSO == "desenvolvimento") {
-        instrucaoSql = `select 
-        dht11_temperatura as temperatura, 
-        dht11_umidade as umidade,
-                        momento,
-                        DATE_FORMAT(momento,'%H:%i:%s') as momento_grafico
-                    from medida
-                    where fk_aquario = ${idAquario}
-                    order by id desc limit ${limite_linhas}`;
+        instrucaoSql = `       select count(m.fkInstrumento) as qtdInstrumento,
+		ins.naipe as nome
+        from musico m
+            join integrante i
+                on i.idIntegrante = m.fkMusico
+            join instrumento ins
+                on ins.idInstrumento = m.fkInstrumento
+			join orquestra o
+				on o.idOrquestra = m.fkOrquestra
+                where o.idOrquestra = ${idOrquestra}
+                group by ins.naipe;`;
     } else {
         console.log("\nO AMBIENTE (produção OU desenvolvimento) NÃO FOI DEFINIDO EM app.js\n");
         return
@@ -30,7 +38,7 @@ function buscarUltimasMedidas(idAquario, limite_linhas) {
     console.log("Executando a instrução SQL: \n" + instrucaoSql);
     return database.executar(instrucaoSql);
 }
-
+/*
 function buscarMedidasEmTempoReal(idAquario) {
 
     instrucaoSql = ''
@@ -62,7 +70,8 @@ function buscarMedidasEmTempoReal(idAquario) {
 }
 
 
+*/
 module.exports = {
     buscarUltimasMedidas,
-    buscarMedidasEmTempoReal
+    // buscarMedidasEmTempoReal
 }

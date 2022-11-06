@@ -20,7 +20,7 @@ function listar(req, res) {
 }
 
 function listarPorUsuario(req, res) {
-    var idUsuario = req.params.idUsuario;
+    var idOrquestra = req.params.idOrquestra;
 
     avisoModel.listarPorUsuario(idUsuario)
         .then(
@@ -66,18 +66,20 @@ function pesquisarDescricao(req, res) {
 }
 
 function publicar(req, res) {
-    var titulo = req.body.titulo;
-    var descricao = req.body.descricao;
-    var idUsuario = req.params.idUsuario;
+    console.log('4');
 
-    if (titulo == undefined) {
-        res.status(400).send("O título está indefinido!");
-    } else if (descricao == undefined) {
-        res.status(400).send("A descrição está indefinido!");
-    } else if (idUsuario == undefined) {
-        res.status(403).send("O id do usuário está indefinido!");
+    var nome = req.body.nome;
+    var instrumento = req.body.instrumento;
+    var idOrquestra = req.params.idOrquestra;
+
+    if (nome == undefined) {
+        res.status(400).send("O nome está indefinido!");
+    } else if (instrumento == undefined) {
+        res.status(400).send("O instrumento está indefinido!");
+    } else if (idOrquestra == undefined) {
+        res.status(403).send("O id da Orqustra está indefinido!");
     } else {
-        avisoModel.publicar(titulo, descricao, idUsuario)
+        avisoModel.publicar(nome, instrumento, idOrquestra)
             .then(
                 function (resultado) {
                     res.json(resultado);
@@ -114,9 +116,9 @@ function editar(req, res) {
 }
 
 function deletar(req, res) {
-    var idAviso = req.params.idAviso;
+    var fkMusico = req.params.fkMusico;
 
-    avisoModel.deletar(idAviso)
+    avisoModel.deletar(fkMusico)
         .then(
             function (resultado) {
                 res.json(resultado);
